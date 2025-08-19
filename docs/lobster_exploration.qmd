@@ -51,18 +51,79 @@ lobster_subset <- lobsters |>
 
 ```{r}
 lobster_legal <- lobster_subset |>
-  dplyr::mutate(legal = size_mm,
-                case_when(legal <= 70 ~ "Yes",
-                          legal > 70 ~ "No"))
+  dplyr::mutate(legal = case_when(size_mm <= 70 ~ "Yes",
+                                  size_mm > 70 ~ "No"))
 
 lobster_legal_new <- lobster_legal |>
   group_by(legal, site) |>
-  drop_na()
+  summarise(n = n())
+  
 
 ```
 
 ```{r}
+ggplot(data = lobster_legal_new, aes(x = site, y = n)) +
+  geom_col(aes(fill = legal), position = "fill")
+```
+
+```{r}
+lobsters_subset1 <- lobsters |>
+  filter(site %in% c("IVEE", "CARP", "NAPL"))
+```
+
+```{r}
+lobsters_Aug <- lobsters |>
+  filter(month == 8)
+```
+
+```{r}
+lobsters_subset2 <- lobsters |>
+  filter(site == "AQUE" | size_mm > 70)
+```
+
+```{r}
+lobsters_subset3 <- lobsters |>
+  filter(!site == "NAPL")
+```
+
+```{r}
+lobsters_cal <- lobsters |>
+  group_by(site) |>
+  summarise(mean = mean(size_mm, na.rm = TRUE),
+            standard_dev = sd(size_mm, na.rm = TRUE))
 
 ```
 
+```{r}
+lobsters_max <- lobsters |>
+  group_by(site, month) |>
+  summarise(length = max(size_mm, na.rm = TRUE))
+```
 
+```{r}
+lobsters_new_col <- lobsters |>
+  mutate(size_cm = size_mm/10)
+```
+
+```{r}
+lobsters_lowercase <- lobsters |>
+  mutate(site = tolower(site))
+```
+
+```{r}
+lobsters_area <- lobsters |>
+  mutate(area = as.character(area))
+
+#class(lobsters_area$area)
+```
+
+```{r}
+lobsters_size_bin <- lobsters |>
+  mutate(size_bin = case_when(size_mm <= 70 ~"small",
+                              size_mm > 70 ~ "large"))
+```
+
+```{r}
+lobsters_designation <- lobsters |>
+  mutate(designation = case_when(site %in% c("IVEE", "NAPL") ~ "MPA", TRUE ~ "not MPA"))
+```
