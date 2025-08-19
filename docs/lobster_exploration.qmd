@@ -3,3 +3,66 @@ title: "lobster_exploration"
 format: html
 editor: visual
 ---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+library(here)
+```
+
+```{r}
+library(janitor)
+```
+
+```{r}
+lobster_abun <- read_csv(here("data", "Lobster_Abundance_All_Years_20210412.csv"), na = c("-99999", ""))
+```
+
+```{r}
+lobsters <- lobster_abun |> clean_names() |> uncount(count)
+```
+
+```{r}
+lob_summary <- lobsters |>
+  dplyr::group_by(site, year) |>
+  summarise(mean_size_mm = mean(size_mm, na.rm = TRUE),
+            sample_size = n())
+            
+  
+
+```
+
+```{r}
+ggplot(data = lob_summary, aes(x = year, y = sample_size)) +
+  geom_line(aes(color = site)) +
+  labs(title = "Total lobsters observed by year",
+       X = "Year",
+       Y = "Total lobsters")
+```
+
+```{r}
+lobster_subset <- lobsters |>
+  dplyr::mutate(year = as.numeric(year)) |>
+  filter(year == 2020)
+ 
+```
+
+```{r}
+lobster_legal <- lobster_subset |>
+  dplyr::mutate(legal = size_mm,
+                case_when(legal <= 70 ~ "Yes",
+                          legal > 70 ~ "No"))
+
+lobster_legal_new <- lobster_legal |>
+  group_by(legal, site) |>
+  drop_na()
+
+```
+
+```{r}
+
+```
+
+
